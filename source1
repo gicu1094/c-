@@ -1,0 +1,188 @@
+#include <iostream>
+
+
+using namespace std;
+
+class Car
+{
+	int mSerialNr;
+protected:
+	string type;
+public:
+	Car()
+	{
+		cout << "Car is created;" << endl;
+	}
+	~Car()
+	{
+		cout << "Car is destroyed" << endl;
+	}
+
+	virtual void msg()
+	{
+		cout << "I'm a car class!";
+	}
+
+	static void increaseNrOfWheeels()
+	{
+		++mNrOfWheels;
+	}
+
+	void registerCar() const
+	{
+		mIsRegistered = true;
+	}
+public:
+
+	static int mNrOfWheels;
+	mutable bool mIsRegistered;
+	int nrOfSits;
+};
+int Car::mNrOfWheels = 1;
+
+
+class Wheel : public Car
+{
+public:
+	Wheel()
+	{
+		cout << "Wheel is created;" << endl;
+	}
+	~Wheel()
+	{
+		cout << "Wheel is destroyed;" << endl;
+	}
+
+	virtual void msg()
+	{
+		cout << "I'm a wheel class!" << endl;
+	}
+
+};
+
+class Door : private Car
+{
+public:
+	explicit Door(int w) : weight(w)
+	{
+		cout << "Door is created;" << endl;
+	}
+
+	~Door()
+	{
+		cout << "Door is destroyed;" << endl;
+	}
+
+	virtual void msg()
+	{
+		cout << "I'm a door class!";
+	}
+
+	int weight;
+};
+
+class Empty
+{
+
+	int x;
+	virtual void v1();
+	virtual void v2();
+
+};
+
+class Base
+{
+protected: 
+	void func()
+	{
+		cout << "I'm base class!" << endl;
+	}
+};
+class Derived1 : protected Base
+{
+public:
+	void func()
+	{
+		cout << "I'm derived1 class!" << endl;
+	}
+};
+
+class Derived2 : protected Base
+{
+public:
+	void func()
+	{
+		cout << "I'm derived2 class!" << endl;
+	}
+};
+
+class Derived3 : public Derived1, public Derived2
+{
+
+};
+
+void defaultParams(int x = 10, int y=30)
+{
+	cout << x << " " << y << endl;
+}
+
+int main()
+{
+	/*
+	Create a class with members in all access modifiers.
+	Create two classes: one inherits privately, the other publicly.
+	Add a virtual function in both base and derived class, call the function from a pointer to base class.
+	*/
+	Car *w1 = new Wheel();
+	w1->msg();
+	//Car *d1 = new Door();		//error 
+	//d1->msg();
+
+	/*
+	Add a static variable and a static function. Call them through the class and through an object.
+	Add a const function, try to modify class members.
+	Add mutable to a member, change it from the const function.
+	*/
+	Car c2;
+	c2.mNrOfWheels = 2;
+	c2.increaseNrOfWheeels();
+	Car::increaseNrOfWheeels();
+	cout <<"Number of wheels is: "<< c2.mNrOfWheels << endl;
+	c2.registerCar();
+	cout << boolalpha << c2.mIsRegistered << endl;
+
+	/*
+	Create an empty class -> display the size of it.		//size = 1;
+	Add an int -> display the size of it					//size = 4;
+	Add a virtual -> display the size of it					//size = 8
+	Add another virtual -> display the size of it			//size = 8 because v2 is used the same pointer created when declared v1
+	*/
+	cout << sizeof(Empty)<<endl;
+
+	/*
+	Add a constructor with one parameter (an int).  Create an object through implicit conversion. (class Base { ... }; ... Base obj = 10;)
+	Add explicit in front of constructor. Notice the difference
+	*
+	Door d = 10;
+	cout << d.weight << endl;							//weight = 10 but after explicit => error : cannot convert from int to Door
+	*/
+
+	/*
+	Check web for diamond problem. Create an example of it.
+	*
+	Derived3 d3;
+	d3.func();											//ambiguos access of func()
+	*/
+
+
+	/*
+	Add a function that receives two default params. Call it with given param and with no params at all, display the parameters received in the function.
+	Try to add default param only for the first parameter. Notice what happens.
+	*/
+	defaultParams(1, 2);							// 1 2
+	defaultParams();								// 10 30
+	defaultParams(7);								// 7 30
+
+	cin.get();
+	return 0;
+}
