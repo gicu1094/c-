@@ -1,0 +1,182 @@
+#include <iostream>
+#include <string>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+std::mutex mu;
+//////////////////////    mutex
+void sharedPrint1(string msg, int id)
+{
+	mu.lock();
+	cout << msg << endl;										//main and func1 uses the same resource "cout"
+	mu.unlock();
+}
+
+void func1()
+{
+	for (int i = 0; i < 10; ++i)
+		sharedPrint1(string("From1 func: "), i);
+}
+
+
+////////////// lock_guard
+
+void sharedPrint2(string msg, int id)
+{
+	std::lock_guard<std::mutex> gurad(mu);						//unlock when goes out of scope
+	cout << msg << endl;										//main and func2 uses the same resource "cout"
+}
+
+void func2()
+{
+	for (int i = 0; i < 10; ++i)
+		sharedPrint2(string("From1 func: "), i);
+}
+
+class MyClass
+{
+public:
+	MyClass() = default;
+
+	~MyClass() = default;
+
+	void Func(int * x)
+	{
+		cout << "pointer" << endl;
+	}
+
+	void Func(int & x)
+	{
+		cout << "reference" << endl;
+	}
+
+};
+
+class Base 
+{ 
+public:
+	int& myInt; 
+};
+
+class Data
+{
+public:
+	Data()
+	{
+		cout << "C-tor called!" << endl;
+	}
+	~Data()
+	{
+		cout << "D-tor called!" << endl;
+	}
+};
+
+class Boo
+{
+	
+public:
+
+	void funcOverload(string s)
+	{
+		cout << "funcOverloaded from Boo  " << s << endl;
+	}
+
+	virtual void funcOverride()
+	{
+		cout << "funcOverride from Boo" << endl;
+	}
+};
+
+class Kapa : public Boo
+{
+public:
+
+
+	void funcOverload(double x)
+	{
+		cout << "funcOverloaded from Kapa  "<< x << endl;
+	}
+	
+	void funcOverride() override
+	{
+		cout << "funcOverride from Kapa" << endl;
+	}
+
+};
+
+int global = 93;
+
+void func()
+{
+	int global = 10;
+	cout << global << endl;
+
+	cout << ::global << endl;
+}
+
+
+int main()
+{
+	/*
+	Create a function that receives a pointer, and another one that receives a reference.
+	Try to send no object in the functions. Notice the differences.
+	*/
+	MyClass m;	
+	int x = 7;
+
+	m.Func(x);				//reference func
+	m.Func(NULL);			//pointer func
+	m.Func(nullptr);		//poiter func
+
+	/*
+	Create a class that contains a reference to an int. (class Base { int& myInt; }; ).
+	Create an instance of this class.
+	*/
+	//Base b;					//error reference is uninitialized
+
+	/*
+	Create a class, add a cout message in ctor/dtor.
+	Allocate an array of that type( Data* objects = new Data[10]);. Use delete objects and see what happens. use delete[] afterwards.
+	*/
+	Data * objects = new Data[10];
+	//delete objects ;					//error(memory leak), is deleted only the first element
+	delete[] objects;					//ok, all the objects are deleted
+
+	/*
+	Create a base and a derived class. Create function overload / function overwrite.
+	*/
+	
+	Kapa k;
+	//k.funcOverload(" fsfssvs");				//overloading doesn’t work for derived class in C++
+	k.funcOverload(7.8);
+	Boo *b = new Kapa;
+	b->funcOverride();							// prints msg from Kapa class
+
+	
+	/*
+	Create a global int, give it a value.
+	Create a function and add an int with the same name, give it another value. 
+	Display the int to the screen.
+	Display the global int to the screen (from the same function).
+	*/
+
+	func();
+
+	/*
+	Create a global mutex. 
+	Create a function in which you lock and unlock it.
+	Create another function in which you use a lock_guard instead. Use an unnamed scope for that lock_guard.
+	*/
+
+	//std::thread t1(func1);
+	std::thread t2(func2);
+	for (int i = -1; i > -10; --i)
+		sharedPrint2(string("From main: "), i);
+
+	//t1.join();
+	t2.join();
+
+	cin.get();
+	return 0;
+}
