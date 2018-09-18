@@ -1,0 +1,82 @@
+//Add an int pointer in the class, allocate it on constructor.
+//Create a copy of the object through copy constructor, see what happens. (this is deep vs shallow copy).
+//Create all 5 functions that are required when manipulating memory (dtor , copy and move constructor/assign operator).
+
+
+#include <iostream>
+
+using namespace std;
+
+class MyClass
+{
+public:
+	MyClass();
+
+	~MyClass();
+
+	MyClass(const MyClass& rho);
+
+	MyClass(MyClass&& rho);
+
+	MyClass& operator = (MyClass&& rho);
+
+public:
+	int *mPointer;
+};
+
+MyClass::MyClass() : mPointer(new int())
+{
+	cout << "mPointer is allocated!" << endl;
+}
+
+MyClass::~MyClass()
+{
+	delete mPointer;
+	mPointer = nullptr;
+	cout << "mPointer is deallocated!" << endl;
+}
+
+MyClass::MyClass(const MyClass &rho)
+{
+	mPointer = new int();
+
+	*mPointer = *rho.mPointer;
+}
+
+MyClass::MyClass(MyClass&& rho) : mPointer(rho.mPointer)
+{
+	rho.mPointer = nullptr;
+}
+
+MyClass& MyClass::operator = (MyClass&& rho)
+{
+	if (this == &rho)
+		return *this;
+
+	delete mPointer;
+
+	mPointer = rho.mPointer;
+	rho.mPointer = nullptr;
+	return *this;
+}
+
+int main()
+{
+
+	MyClass m;							//default constructor
+
+	int x = 10;
+	*m.mPointer = x;
+
+	MyClass m1(m);						//copy constructor
+	cout << *m1.mPointer << endl;
+
+	MyClass m3 = m;						// operator =
+	cout << *m3.mPointer << endl;
+
+	MyClass m4 = move(m1);				//move constructor
+	cout << *m4.mPointer << endl;
+
+	cin.get();
+	return 0;
+}
