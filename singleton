@@ -1,0 +1,70 @@
+#include <iostream>
+
+using namespace std;
+
+class Banana
+{
+public:
+
+	int getValue();
+	void setValue(int value);
+	static Banana *instance();
+
+private:
+
+	Banana();
+
+	int mValue;
+	static Banana *mBananaInstance;
+};
+
+
+// Allocating and initializing GlobalClass's
+// static data member.  The pointer is being
+// allocated - not the object inself.
+
+Banana *Banana::mBananaInstance = 0;
+
+Banana::Banana()
+{
+	mValue = 0;
+}
+
+int Banana::getValue()
+{
+	return mValue;
+}
+
+void Banana::setValue(int value)
+{
+	mValue = value;
+}
+
+Banana* Banana::instance()
+{
+	if (!mBananaInstance)
+		mBananaInstance = new Banana;
+	return mBananaInstance;
+}
+
+void func1()
+{
+	Banana::instance()->setValue(67);
+	cout << "func1: " << Banana::instance()->getValue() << '\n';
+}
+
+void func2()
+{
+	Banana::instance()->setValue(89);
+	cout << "func2: " << Banana::instance()->getValue() << '\n';
+}
+
+int main()
+{
+	cout << "main: " << Banana::instance()->getValue() << '\n';
+	func1();
+	func2();
+
+	cin.get();
+	return 0;
+}
