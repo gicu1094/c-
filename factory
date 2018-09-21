@@ -1,0 +1,62 @@
+// Example program
+#include <iostream>
+
+using namespace std;
+
+class Animal
+{
+    public:
+        static Animal *createAnimal(int choice);
+        virtual void makeNoise() = 0;
+};
+
+
+class Dog : public Animal
+{
+    public:
+        void makeNoise()
+        {
+            cout<<"Dog says: woof woof"<<endl;
+        }
+};
+
+class Cat : public Animal
+{
+    public:
+        void makeNoise()
+        {
+            cout<<"Cat says: meaw meaw"<<endl;
+        }
+};
+
+Animal *Animal::createAnimal(int choice)
+{
+    switch(choice)
+    {
+        case 1: 
+            return new Dog;
+            break;
+        case 2:
+            return new Cat;
+            break;
+        default:
+            break;
+    }
+}
+
+
+int main()
+{
+    
+    int choice;
+    while (true)
+    {
+        cout<<"Dog(1)   Cat(2)  Exit(0)"<<endl;
+        cin>>choice;
+        if(choice == 0)
+            break;
+        Animal* animal= Animal::createAnimal(choice);
+        animal->makeNoise();
+    }
+    
+}
